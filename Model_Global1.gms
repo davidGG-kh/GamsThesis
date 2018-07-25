@@ -720,9 +720,9 @@ Equations
 
 *Balance at factories
          eqB1(p,l,t,y)
-         eqB2(p,l,t,y)
+*         eqB2(p,l,t,y)
          eqB3(mat,l,t,y)
-         eqB4(mat,l,t,y)
+*         eqB4(mat,l,t,y)
          eqB5(m,lo,ld,t,y)
 
          eqB6(m,ld,t,y)
@@ -808,14 +808,11 @@ obj4
 
 *#Storage
 *Material balance at the factories - Final Product:
-         eqB1(p,l,t,y)$(tFirst(t,y))..        pInitStock(p,l)$tFirst(t,y) + Production(l,p,t,y)
+         eqB1(p,l,t,y)..        pInitStock(p,l)$tFirst(t,y) + StockLevel(l,p,t-1,y)$tOther(t,y) + Production(l,p,t,y)
                                                          =E= StockLevel(l,p,t,y) + sum((ld)$(flowOUTfactFP(p,l,ld)), sum(trm$networkConnected(trm,p,l,ld), Flow(l,ld,p,trm,t,y)));
-         eqB2(p,l,t,y)$(tOther(t,y))..       StockLevel(l,p,t-1,y)$tOther(t,y) + Production(l,p,t,y)
-                                                         =E= StockLevel(l,p,t,y) + sum((ld)$(flowOUTfactFP(p,l,ld)), sum(trm$networkConnected(trm,p,l,ld), Flow(l,ld,p,trm,t,y)));
+
 *Material balance at the factories - Raw Materials:
-         eqB3(mat,l,t,y)$(tFirst(t,y))..        pInitStock(mat,l)$tFirst(t,y) + sum(lo$flowINfactRM(mat,lo,l), sum(trm$networkConnected(trm,mat,lo,l), Flow(lo,l,mat,trm,t,y)))
-                                                         =E= StockLevel(l,mat,t,y) + sum((p)$product(p), pBOM(mat,p)*scaleUpMult*Production(l,p,t,y));
-         eqB4(mat,l,t,y)$(tOther(t,y))..       StockLevel(l,mat,t-1,y)$tOther(t,y) + sum(lo$flowINfactRM(mat,lo,l), sum(trm$networkConnected(trm,mat,lo,l), Flow(lo,l,mat,trm,t,y)))
+         eqB3(mat,l,t,y)..        pInitStock(mat,l)$tFirst(t,y) + StockLevel(l,mat,t-1,y)$tOther(t,y) + sum(lo$flowINfactRM(mat,lo,l), sum(trm$networkConnected(trm,mat,lo,l), Flow(lo,l,mat,trm,t,y)))
                                                          =E= StockLevel(l,mat,t,y) + sum((p)$product(p), pBOM(mat,p)*scaleUpMult*Production(l,p,t,y));
 
          eqB5(m,lo,ld,t,y)$(pSupply(m,lo) and flowOUTsupRM(m,lo,ld))..  sum(trm$networkConnected(trm,m,lo,ld), Flow(lo,ld,m,trm,t,y))
