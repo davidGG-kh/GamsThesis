@@ -724,12 +724,13 @@ Equations
          eqB3(mat,l,t,y)
          eqB4(mat,l,t,y)
          eqB5(m,lo,ld,t,y)
+
          eqB6(m,ld,t,y)
 * Balance at warehouses
          eqC1(m,w,t,y)           Balance at warehouses - period 0
-         eqC2(m,w,t,y)           Balance at warehouses - other periods
-         eqC3(w,y)               stocklevel max
-         eqC4(w,y)               stocklevel min
+*         eqC2(m,w,t,y)           Balance at warehouses - other periods
+*         eqC3(w,y)               stocklevel max
+*         eqC4(w,y)               stocklevel min
 
 *Necessary number of trips:
          eqD1(trm,lo,ld,t,y)  Necessary number of trips according to transport mode's maximum capacity for raw materials
@@ -820,19 +821,18 @@ obj4
 
          eqB5(m,lo,ld,t,y)$(pSupply(m,lo) and flowOUTsupRM(m,lo,ld))..  sum(trm$networkConnected(trm,m,lo,ld), Flow(lo,ld,m,trm,t,y))
                                                                          =E= lot_size(m)*MatOrder(lo,ld,m,t,y);
+
 *Balance out of suppliers enters warehouses or factories
          eqB6(m,ld,t,y)..                sum((lo)$(flowOUTsupRM(m,lo,ld)), sum(trm$networkConnected(trm,m,lo,ld), Flow(lo,ld,m,trm,t,y)))
                                                               =E= sum((lo)$(flowINwhFP(m,lo,ld) or flowINwhRM(m,lo,ld)), sum(trm$networkConnected(trm,m,lo,ld), Flow(lo,ld,m,trm,t,y)))
                                                               + sum(lo$flowINfactRM(m,lo,ld), sum(trm$networkConnected(trm,m,lo,ld), Flow(lo,ld,m,trm,t,y)));
 *Balance at warehouses
-         eqC1(m,w,t,y)$(tFirst(t,y))..
-                         pInitStock(m,w)$tFirst(t,y) + sum((lo)$(flowINwhFP(m,lo,w) or flowINwhRM(m,lo,w)), sum(trm$networkConnected(trm,m,lo,w), Flow(lo,w,m,trm,t,y)))
+         eqC1(m,w,t,y)..
+                         pInitStock(m,w)$tFirst(t,y) + StockLevel(w,m,t-1,y)$tOther(t,y) + sum((lo)$(flowINwhFP(m,lo,w) or flowINwhRM(m,lo,w)), sum(trm$networkConnected(trm,m,lo,w), Flow(lo,w,m,trm,t,y)))
                                  =E= StockLevel(w,m,t,y) + sum((ld)$(flowOUTwhFP(m,w,ld) or flowOUTwhRM(m,w,ld)), sum(trm$networkConnected(trm,m,w,ld), Flow(w,ld,m,trm,t,y)));
-         eqC2(m,w,t,y)$(tOther(t,y))..
-                         StockLevel(w,m,t-1,y)$tOther(t,y) + sum((lo)$(flowINwhFP(m,lo,w) or flowINwhRM(m,lo,w)), sum(trm$networkConnected(trm,m,lo,w), Flow(lo,w,m,trm,t,y)))
-                                 =E= StockLevel(w,m,t,y) + sum((ld)$(flowOUTwhFP(m,w,ld) or flowOUTwhRM(m,w,ld)), sum(trm$networkConnected(trm,m,w,ld), Flow(w,ld,m,trm,t,y)));
-         eqC3(w,y)..      sum((m,t), StockLevel(w,m,t,y)) =L= maxWhCapacity(w)*Open(w);
-         eqC4(w,y)..      sum((m,t), StockLevel(w,m,t,y)) =G= minWhCapacity(w)*Open(w);
+
+*         eqC3(w,y)..      sum((m,t), StockLevel(w,m,t,y)) =L= maxWhCapacity(w)*Open(w);
+*         eqC4(w,y)..      sum((m,t), StockLevel(w,m,t,y)) =G= minWhCapacity(w)*Open(w);
 
 *#Transportation
 *Necessary number of trips:
@@ -907,7 +907,7 @@ Parameter
          fixed_tooling(p)         Fixed costs of tooling per p (eur)      / p1 2000000, p2 1000000, p3 2000000, p4 1000000 /
          fixed_other(l)           Other fixed costs per f                 / f1 50000 /
          revenueAnnual(y)         Revenue per year                        / y1 0, y2 0, y3 0, y4 0, y5 0, y6 0, y7 0, y8 0, y9 0, y10 0, y11 0, y12 0, y13 0, y14 0, y15 0 /
-         holding_cost(m)          Holding cost of material m              / rm1 100000, rm2 100000, rm3 100000, rm4 100000, rm5 100000, sp1 100000, sp2 100000, p1 100000, p2 100000, p3 100000, p4 100000 /
+         holding_cost(m)          Holding cost of material m              / rm1 100000, rm2 100000, rm3 100000, rm4 100000, rm5 100000, sp1 100000, sp2 1000000, p1 1000000, p2 1000000, p3 1000000, p4 100000 /
 *        holding_cost(m)          Holding cost of material m              / rm1 100, rm2 100, rm3 100, rm4 100, rm5 100, sp1 100, sp2 100, p1 100, p2 100, p3 100, p4 100 /
          hiringCost(r)           Hiring cost of res r                    / o1 2029600, o2 367682, o3 897143, o4 270888, l1 0 /
          firingCost(r)           Firing cost of res r                    / o1 0, o2 0, o3 0, o4 0, l1 10000 /
